@@ -5,9 +5,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     openssh-server \
     python3 \
-    python3-pip \
-    wget && \
+    python3-pip && \
     apt-get clean
+
+RUN pip3 install websockify
 
 # إعداد SSH
 RUN mkdir -p /var/run/sshd && \
@@ -19,14 +20,7 @@ RUN mkdir -p /var/run/sshd && \
     echo "ClientAliveCountMax 10" >> /etc/ssh/sshd_config && \
     echo "TCPKeepAlive yes" >> /etc/ssh/sshd_config
 
-# websocat
-RUN wget -q https://github.com/vi/websocat/releases/download/v1.13.0/websocat.x86_64-unknown-linux-musl \
-    -O /usr/local/bin/websocat && \
-    chmod +x /usr/local/bin/websocat
-
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
-
-EXPOSE 8000
 
 CMD ["/start.sh"]
