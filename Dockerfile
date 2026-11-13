@@ -1,15 +1,28 @@
 FROM ubuntu:22.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y \
     openssh-server \
-    wget
+    python3 \
+    python3-pip \
+    wget && \
+    apt-get clean
 
-RUN mkdir /var/run/sshd
-RUN useradd -m -s /bin/bash user && echo "user:pass123" | chpasswd
-RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+# إعداد SSH
+RUN mkdir -p /var/run/sshd && \
+    useradd -m -s /bin/bash user && \
+    echo "user:pass123" | chpasswd && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    echo "ClientAliveInterval 30" >> /etc/ssh/sshd_config && \
+    echo "ClientAliveCountMax 10" >> /etc/ssh/sshd_config && \
+    echo "TCPKeepAlive yes" >> /etc/ssh/sshd_config
 
-RUN wget https://github.com/vi/websocat/releases/download/v1.11.0/websocat.x86_64-unknown-linux-musl -O /usr/local/bin/websocat
-RUN chmod +x /usr/local/bin/websocat
+# websocat
+RUN wget -q https://github.com/vi/websocat/releases/download/v1.13.0/websocat.x86_64-unknown-linux-musl \
+    -O /usr/local/bin/websocat && \
+    chmod +x /usr/local/bin/websocat
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
