@@ -3,14 +3,9 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    openssh-server \
-    python3 \
-    python3-pip && \
+    openssh-server && \
     apt-get clean
 
-RUN pip3 install websockify
-
-# إعداد SSH
 RUN mkdir -p /var/run/sshd && \
     useradd -m -s /bin/bash user && \
     echo "user:pass123" | chpasswd && \
